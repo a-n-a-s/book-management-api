@@ -1,12 +1,21 @@
 require("dotenv").config();
+
+//Frameworks
 const express = require('express');
 
-const booky = express();
 const mongoose = require("mongoose");
 
+//database
 const database =  require('./database/database');
 
+//intailizing
+const booky = express();
 booky.use(express.json());
+//Models
+const BookModel = require('./database/books');
+const AuthorModel = require('./database/author');
+const PublicationModel = require('./database/publication');
+
 
 mongoose
   .connect(process.env.MONGO_URL, {
@@ -24,8 +33,9 @@ Access          PUBLIC
 Parameters      NONE
 Method          GET
 */
-booky.get('/',(req , res) => {
-    return res.json({ books : database.books});
+booky.get('/', async (req , res) => {
+  const getAllBooks = await BookModel.find();
+    return res.json(getAllBooks);
 })
 /*
 Route           /is
@@ -34,11 +44,9 @@ Access          PUBLIC
 Parameters      isbn
 Method          GET
 */
-booky.get('/is/:isbn',(req , res) => {
-    const getSpecificBook = database.books.filter(
-        (book) => book.ISBN === req.params.isbn
-    ) 
-    if(getSpecificBook.length === 0){
+booky.get('/is/:isbn',async (req , res) => {
+    const getSpecificBook = await BookModel.findOne({ISBN : req.params.isbn});
+    if(!getSpecificBook){
         return res.json({
             error : `No book found for ISBN of ${req.params.isbn}`
         })
@@ -52,12 +60,10 @@ Access          PUBLIC
 Parameters      category
 Method          GET
 */
-booky.get('/c/:category' , (req,res) => {
-    const getSpecificBooks = database.books.filter(
-        (book) => book.category.includes(req.params.category)
-    )
+booky.get('/c/:category' , async (req,res) => {
+    const getSpecificBooks = await BookModel.findOne({category:req.params.category});
 
-    if (getSpecificBooks.length === 0) {
+    if (!getSpecificBooks) {
         return res.json({
           error: `No book found for the category of ${req.params.category}`,
         });
@@ -72,12 +78,10 @@ Access          PUBLIC
 Parameters      lang
 Method          GET
 */
-booky.get('/lang/:lang' , (req,res) => {
-    const getSpecificBooks = database.books.filter(
-        (book) => book.language.includes(req.params.lang)
-    )
+booky.get('/lang/:lang' ,async (req,res) => {
+    const getSpecificBooks = await BookModel.findOne({language : req.params.id});
 
-    if (getSpecificBooks.length === 0) {
+    if (!getSpecificBooks) {
         return res.json({
           error: `No book found for the language of ${req.params.lang}`,
         });
@@ -112,10 +116,9 @@ Access          PUBLIC
 Parameters      NONE
 Method          GET
 */
-booky.get('/author' , (req,res) => {
-    
-    
-      return res.json({ authors: database.author });
+booky.get('/author' , async (req,res) => {
+    const getAllAuthors = await AuthorModel.find(); 
+      return res.json({ authors: getAllAuthors });
 })
 /*
 Route           /author/id
@@ -208,10 +211,10 @@ Access          PUBLIC
 Parameter       NONE
 Methods         POST
 */
-booky.post("/book/add", (req, res) => {
+booky.post("/book/add",async (req, res) => {
     const { newBook } = req.body;
-    database.books.push(newBook);
-    return res.json({ books: database.books });
+    BookModel.create(newBook);
+    return res.json({ books: addNewBook });
   });
 /*
 Route           /author/add

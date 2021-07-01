@@ -10,6 +10,6 @@ const BookSchema = mongoose.Schema({
         category : [String],
         publication : Number
 })
-const BookModel = mongoose.model(BookSchema);
+const BookModel = mongoose.model("books",BookSchema);
 
 module.exports = BookModel;

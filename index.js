@@ -1,0 +1,440 @@
+require("dotenv").config();
+const express = require('express');
+
+const booky = express();
+const mongoose = require("mongoose");
+
+const database =  require('./database/database');
+
+booky.use(express.json());
+
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    // useUnifiedopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+  })
+  .then(() => console.log("connection established!!!!!!!"));
+
+/*
+Route           /
+Description     get all books
+Access          PUBLIC
+Parameters      NONE
+Method          GET
+*/
+booky.get('/',(req , res) => {
+    return res.json({ books : database.books});
+})
+/*
+Route           /is
+Description     get a specific book based on isbn
+Access          PUBLIC
+Parameters      isbn
+Method          GET
+*/
+booky.get('/is/:isbn',(req , res) => {
+    const getSpecificBook = database.books.filter(
+        (book) => book.ISBN === req.params.isbn
+    ) 
+    if(getSpecificBook.length === 0){
+        return res.json({
+            error : `No book found for ISBN of ${req.params.isbn}`
+        })
+    }
+    return res.json({ books : getSpecificBook});
+})
+/*
+Route           /c
+Description     get specific books based on a category
+Access          PUBLIC
+Parameters      category
+Method          GET
+*/
+booky.get('/c/:category' , (req,res) => {
+    const getSpecificBooks = database.books.filter(
+        (book) => book.category.includes(req.params.category)
+    )
+
+    if (getSpecificBooks.length === 0) {
+        return res.json({
+          error: `No book found for the category of ${req.params.category}`,
+        });
+      }
+    
+      return res.json({ books: getSpecificBooks });
+})
+/*
+Route           /lang
+Description     get specific books based on a language
+Access          PUBLIC
+Parameters      lang
+Method          GET
+*/
+booky.get('/lang/:lang' , (req,res) => {
+    const getSpecificBooks = database.books.filter(
+        (book) => book.language.includes(req.params.lang)
+    )
+
+    if (getSpecificBooks.length === 0) {
+        return res.json({
+          error: `No book found for the language of ${req.params.lang}`,
+        });
+      }
+    
+      return res.json({ books: getSpecificBooks });
+})
+/*
+Route           /book/author/
+Description     get specific books based on a author id
+Access          PUBLIC
+Parameters      id
+Method          GET
+*/
+booky.get('/book/author/:id' , (req,res) => {
+    const getSpecificBook = database.books.filter(
+        (book) => book.author.includes(parseInt(req.params.id))
+    )
+
+    if (getSpecificBook.length === 0) {
+        return res.json({
+          error: `No book found for the author of id : ${req.params.id}`,
+        });
+      }
+    
+      return res.json({ books: getSpecificBook });
+})
+/*
+Route           /author
+Description     get all authors
+Access          PUBLIC
+Parameters      NONE
+Method          GET
+*/
+booky.get('/author' , (req,res) => {
+    
+    
+      return res.json({ authors: database.author });
+})
+/*
+Route           /author/id
+Description     get specific author based on a id
+Access          PUBLIC
+Parameters      id
+Method          GET
+*/
+booky.get('/author/id/:id' , (req ,res) => {
+    const getSpecificAuthor = database.author.filter(
+        (author) => author.id === parseInt(req.params.id) 
+    )
+    if(getSpecificAuthor.length === 0){
+        return res.json({
+            error: `No author found for the id : ${req.params.id}`,
+          });
+    }
+    return res.json({author : getSpecificAuthor})
+})
+/*
+Route           /author
+Description     get lsit authors based on a book isbn
+Access          PUBLIC
+Parameters      isbn
+Method          GET
+*/
+booky.get('/author/:isbn' , (req ,res) => {
+    const getSpecificAuthors = database.author.filter(
+        (author) => author.books.includes(req.params.isbn)
+        ) 
+    
+    if(getSpecificAuthors.length === 0){
+        return res.json({
+            error: `No author found for the book ${req.params.isbn}`,
+          });
+    }
+    return res.json({author : getSpecificAuthors})
+})
+/*
+Route           /publications
+Description     get all publications
+Access          PUBLIC
+Parameters      NONE
+Method          GET
+*/
+booky.get("/publications", (req, res) => {
+    return res.json({ publications: database.publications });
+  });
+/*
+Route           /publications/id
+Description     get specific publication based on a id
+Access          PUBLIC
+Parameters      id
+Method          GET
+*/
+booky.get('/publications/id/:id' , (req ,res) => {
+    const getSpecificPublication = database.publications.filter(
+        (publication) => publication.id === parseInt(req.params.id) 
+    )
+    if(getSpecificPublication.length === 0){
+        return res.json({
+            error: `No publication found for the id : ${req.params.id}`,
+          });
+    }
+    return res.json({publications : getSpecificPublication})
+})
+/*
+Route           /publication/book
+Description     get lsit publication based on a book isbn
+Access          PUBLIC
+Parameters      isbn
+Method          GET
+*/
+booky.get('/publications/book/:isbn' , (req ,res) => {
+    const getSpecificPublication = database.publications.filter(
+        (publication) => publication.books.includes(req.params.isbn)
+        ) 
+    
+    if(getSpecificPublication.length === 0){
+        return res.json({
+            error: `No author found for the book ${req.params.isbn}`,
+          });
+    }
+    return res.json({author : getSpecificPublication})
+})  
+/*
+Route           /book/add
+Description     add new book
+Access          PUBLIC
+Parameter       NONE
+Methods         POST
+*/
+booky.post("/book/add", (req, res) => {
+    const { newBook } = req.body;
+    database.books.push(newBook);
+    return res.json({ books: database.books });
+  });
+/*
+Route           /author/add
+Description     add new author
+Access          PUBLIC
+Parameter       NONE
+Methods         POST
+*/
+booky.post("/author/add", (req, res) => {
+    const { newAuthor } = req.body;
+    database.author.push(newAuthor);
+    return res.json({ author: database.author });
+  });
+/*
+Route           /publication/add
+Description     add new publication
+Access          PUBLIC
+Parameter       NONE
+Methods         POST
+*/
+booky.post("/publication/add", (req, res) => {
+    const { newPublication } = req.body;
+    database.publications.push(newPublication);
+    return res.json({ publications: database.publications });
+  });
+/*
+Route           /book/update/title
+Description     update book title
+Access          PUBLIC
+Parameter       isbn
+Methods         PUT
+*/
+booky.put('/book/update/title/:isbn' ,(req,res) => {
+    database.books.forEach((book) => {
+        if(book.ISBN === req.params.isbn){
+            book.title =req.body.newBookTitle;
+            return;
+        }
+    })
+    res.json({books : database.books});
+})
+/*
+Route           /book/update/author
+Description     update book author
+Access          PUBLIC
+Parameter       isbn
+Methods         PUT
+*/
+booky.put('/book/update/title/:isbn/:authorId' ,(req,res) => {
+    database.books.forEach((book) => {
+        if(book.ISBN === req.params.isbn){
+            
+            return book.author.push(parseInt(req.params.authorId));
+        }
+    })
+    database.author.forEach((author) => {
+        if(author.id === parseInt(req.params.authorId)){
+            return author.books.push(req.params.isbn);
+        }
+    })
+    res.json({books : database.books , author : database.author});
+})
+/*
+Route           /author/update/name
+Description     update book author
+Access          PUBLIC
+Parameter       name,id
+Methods         PUT
+*/
+booky.put('/author/update/name/:id/:name' , (req , res) => {
+    database.author.forEach(
+        (auhtor) => {
+            if(auhtor.id === parseInt(req.params.id)){
+                return auhtor.name = req.params.name;
+            }
+        }
+    )
+    res.json({ author : database.author});
+})
+/*
+Route           /publication/update/name
+Description     update book author
+Access          PUBLIC
+Parameter       name,id
+Methods         PUT
+*/
+booky.put('/publications/update/name/:id/:name' , (req , res) => {
+    database.publications.forEach(
+        (publication) => {
+            if(publication.id === parseInt(req.params.id)){
+                return publication.name = req.params.name;
+            }
+        }
+    )
+    res.json({ publications : database.publications});
+})
+/*
+Route           /publication/update/book
+Description     update/add new book to a publication
+Access          PUBLIC
+Parameters      isbn
+Method          PUT
+*/
+booky.put("/publication/update/book/:isbn", (req, res) => {
+    // update the publication database
+    database.publications.forEach((publication) => {
+      if (publication.id === req.body.pubId) {
+        return publication.books.push(req.params.isbn);
+      }
+    });
+  
+    // update the book database
+    database.books.forEach((book) => {
+      if (book.ISBN === req.params.isbn) {
+        book.publication = req.body.pubId;
+        return;
+      }
+    });
+  
+    return res.json({
+      books: database.books,
+      publications: database.publications,
+      message: "Successfully updated publication",
+    });
+  });
+/*
+Route           /book/delete
+Description     delete a book
+Access          PUBLIC
+Parameters      isbn
+Method          DELETE
+*/
+booky.delete("/book/delete/:isbn", (req, res) => {
+    const updatedBookDatabase = database.books.filter(
+      (book) => book.ISBN !== req.params.isbn
+    );
+  
+    database.books = updatedBookDatabase;
+    return res.json({ books: database.books });
+  });
+  /*
+Route           /book/delete/author
+Description     delete a author from a book
+Access          PUBLIC
+Parameters      isbn, author id
+Method          DELETE
+*/
+booky.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
+    // update the book database
+    database.books.forEach((book) => {
+      if (book.ISBN === req.params.isbn) {
+        const newAuthorList = book.authors.filter(
+          (author) => author !== parseInt(req.params.authorId)
+        );
+        book.authors = newAuthorList;
+        return;
+      }
+    });
+  
+    // update the author database
+    database.authors.forEach((author) => {
+      if (author.id === parseInt(req.params.authorId)) {
+        const newBooksList = author.books.filter(
+          (book) => book !== req.params.isbn
+        );
+  
+        author.books = newBooksList;
+        return;
+      }
+    });
+  
+    return res.json({
+      message: "author was deleted!!!!!!😪",
+      book: database.books,
+      author: database.authors,
+    });
+  });
+  /*
+Route           /author/delete/
+Description     delete a author from a book
+Access          PUBLIC
+Parameters       author id
+Method          DELETE
+*/
+booky.delete("/author/delete/:id", (req, res) => {
+    const updatedAuthorDatabase = database.author.filter(
+      (author) => author.id !== parseInt(req.params.id)
+    );
+  
+    database.auhtor = updatedAuthorDatabase;
+    return res.json({ author: updatedAuthorDatabase });
+  });
+/*
+Route           /publication/delete/book
+Description     delete a book from publication 
+Access          PUBLIC
+Parameters      isbn, publication id
+Method          DELETE
+*/
+booky.delete("/publication/delete/book/:isbn/:pubId", (req, res) => {
+    // update publication database
+    database.publications.forEach((publication) => {
+      if (publication.id === parseInt(req.params.pubId)) {
+        const newBooksList = publication.books.filter(
+          (book) => book !== req.params.isbn
+        );
+  
+        publication.books = newBooksList;
+        return;
+      }
+    });
+  
+    // update book database
+    database.books.forEach((book) => {
+      if (book.ISBN === req.params.isbn) {
+        book.publication = 0; // no publication available
+        return;
+      }
+    });
+  
+    return res.json({
+      books: database.books,
+      publications: database.publications,
+    });
+  });
+booky.listen(3000);

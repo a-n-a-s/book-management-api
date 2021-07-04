@@ -30,11 +30,11 @@
 
 // PUT
 // Update book title✅📌
-// update/add new author for a book✅
+// update/add new author for a book✅📌
 
 // DELETE
-// delete a book✅
-// delete an author from a book✅
+// delete a book✅📌
+// delete an author from a book✅📌
 
 // Author
 
@@ -49,10 +49,10 @@
 // Add new author✅📌
 
 // PUT
-// Update Author name using it's id ✅
+// Update Author name using it's id ✅📌
 
 // DELETE
-// Delete an author using id✅
+// Delete an author using id✅📌
 
 // Publication
 
@@ -67,9 +67,9 @@
 // Add new publications ✅📌
 
 // PUT
-// UPdate the publication name using it's id ✅
-// update/add books to publications✅
+// UPdate the publication name using it's id ✅📌
+
 
 // DELETE
-// Delete the publication
-// delete a book from publication.
+// Delete the publication✅📌
+

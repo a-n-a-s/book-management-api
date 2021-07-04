@@ -1,6 +1,8 @@
 const Router = require("express").Router();
 
 const AuthorModel = require("../../database/author");
+const BookModel = require("../../database/books");
+
 
 // _____________________________________________________________________________
 // _____________________________________________________________________________
@@ -85,8 +87,8 @@ Router.post("/add", async (req, res) => {
   try{
   const { newAuthor } = req.body;
   await AuthorModel.create(newAuthor);
+  
   return res.json({ author: newAuthor });
-
   }catch(error){
     res.json({error : error})
   }

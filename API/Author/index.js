@@ -141,6 +141,11 @@ Router.delete("/delete/:id", async (req, res) => {
           id : req.params.id,
         }
     )
+    await BookModel.findOneAndDelete(
+      {
+        author : req.params.id,
+      }
+    )
     return res.json({ author: updatedAuthorDatabase });
   }
   catch(error){

@@ -144,4 +144,4 @@ Router.delete("/delete/:pubId", async (req, res) => {
     res.json({error : error})
   }
 });
-modlue.exports = Router;
+module.exports = Router;
